@@ -9,6 +9,7 @@ for sportsman in sportsmens:
 sportsmens = ['david','sam','tom']
 for sportsman in sportsmens:
      print(f'ill bye a ticket to your next show {sportsman.title()}.\n')
+
 #Пример 3
 sportsmens = ['david','sam','tom']
 for sportsman in sportsmens:
