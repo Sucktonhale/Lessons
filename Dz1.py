@@ -10,6 +10,8 @@ sportsmens = ['david','sam','tom']
 for sportsman in sportsmens:
      print(f'ill bye a ticket to your next show {sportsman.title()}.\n')
 
+x = 3
+a = f"hello world {x}"
 #Пример 3
 sportsmens = ['david','sam','tom']
 for sportsman in sportsmens:
@@ -47,3 +49,25 @@ for player in players[:4]:
  streamers['streamer01'] = ['Stint']
  streamers['streamer02'] = ['Toxat2x2']
  print(streamers)
+#funchii
+ def ban_user():
+      print("U was banned for exploting")
+ ban_user()
+
+def unban_user(username):
+     print(f"U was unbannded,{username.title()}!")
+unban_user('Suckthale')
+
+def describe_pet(animal_type, pet_name):
+    "information about animal"
+    print(f"\nI have a {animal_type}")
+    print(f"my {animal_type}'s name is {pet_name.title()}.")
+describe_pet('hamster','musorka')
+describe_pet('cat','dik')
+
+def describe_pet( pet_name,animal_type = 'homyak'):
+    "information about animal"
+    print(f"\nI have a {animal_type}")
+    print(f"my {animal_type}'s name is {pet_name.title()}.")
+describe_pet(pet_name='eblusha')
+
