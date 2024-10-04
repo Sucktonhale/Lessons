@@ -50,9 +50,10 @@ for player in players[:4]:
  streamers['streamer02'] = ['Toxat2x2']
  print(streamers)
 #funchii
- def ban_user():
-      print("U was banned for exploting")
- ban_user()
+def ban_user():
+    print("U was banned for exploting")
+
+ban_user()
 
 def unban_user(username):
      print(f"U was unbannded,{username.title()}!")
@@ -65,9 +66,28 @@ def describe_pet(animal_type, pet_name):
 describe_pet('hamster','musorka')
 describe_pet('cat','dik')
 
-def describe_pet( pet_name,animal_type = 'homyak'):
+def describe_pet(pet_name, animal_type = 'homyak'):
+    if (pet_name == None or animal_type == None):
+        return  # ПРЕРВАЛ РАБОТУ ФУНКЦИИ (ВЕРНУЛ ПУСТОТУ)
+
     "information about animal"
     print(f"\nI have a {animal_type}")
     print(f"my {animal_type}'s name is {pet_name.title()}.")
+
 describe_pet(pet_name='eblusha')
 
+def Sum(x,y):
+    return x+y
+
+def get_pet_describtion(animal_type, pet_name):
+    "information about animal"
+    return (f"\nI have a {animal_type}\n" +
+        f"my {animal_type}'s name is {pet_name.title()}.")
+
+description = get_pet_describtion("dog", "Woof")
+print(description)
+
+result = describe_pet("", "")
+print(result)
+
+describe_pet(None)
