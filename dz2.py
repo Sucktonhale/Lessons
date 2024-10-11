@@ -7,15 +7,15 @@ def info_abut_user(ip,id,nick = ''):
 mellstroy = info_abut_user('23.45','188.45','helldrocher')
 print(mellstroy)
 
-def acc_reborn(password,nickname,age):
+def acc_reborn(password,nickname,age=52):
     user = {'pass':password,'name':nickname}
     if age:
         user['age'] = age
     return user
-gamer = acc_reborn(12345,'John_Scina',52)
+gamer = acc_reborn(12345,'John_Scina')
 print(gamer)
 
-def acc_reborn(password,nickname,age):
+def acc_reorn(password,nickname,age):
     user = f'{password} {nickname} {age} '
     return user.title()
 while True:
@@ -24,5 +24,5 @@ while True:
     N_par = input('01000011001 :')
     A_par = int(input('00100100000102001 :'))
 
-    User_data = acc_reborn(P_par,N_par,A_par)
+    User_data = acc_reorn(P_par,N_par,A_par)
     print(f'\nU ve been hacked,{User_data}:)')
