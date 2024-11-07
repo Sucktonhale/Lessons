@@ -16,12 +16,21 @@ class Dog:
         print(f'{self.name} is lay now')
     def info_about_animal(self):
         print(f'ur pet is {self.age} old and his name is {self.name}')
-class Puppy:
+
+class Puppy(Dog):
     def __init__(self,name,age,colour):
         super().__init__(name,age)
         self.name = name
         self.colour = colour
     def makeEyes(self):
         print(f'ur {self.name} is make eyes and have eyes colour {self.colour}')
+
+class Test:
+    def print_hello(self):
+        print("HELLO!")
+
 my_puppy = Puppy('Tom',5,'black')
 my_puppy.makeEyes()
+
+test = Test()
+test.print_hello()
