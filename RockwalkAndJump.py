@@ -22,12 +22,12 @@ class Player(Sprite):
 
     def __init__(self, screen, texturePath):
         super().__init__()
-        self.anim_right = [ImageHelper.load_image("sprites/riht_walk1.xcf"),]
-        self.anim_left = [ImageHelper.load_image("sprites/left_walk.xcf"),ImageHelper.load_image('sprites/adventurer_swim2L.png')]
-        self.anim_up_right = [ImageHelper.load_image("sprites/adventurer_jump.png")]
-        self.anim_up_left = [ImageHelper.load_image("sprites/adventurer_jumpL.png")]
-        self.anim_down = [ImageHelper.load_image("sprites/adventurer_fall.png")]
-        self.idle = [ImageHelper.load_image('sprites/adventurer_idle.png')]
+        self.anim_right = [ImageHelper.load_image("sprites/riht_walk1.xcf"),ImageHelper.load_image('sprites/right_walk2.xcf')]
+        self.anim_left = [ImageHelper.load_image("sprites/left_walk1.xcf"),ImageHelper.load_image('sprites/left_walk2.xcf')]
+        self.anim_up_right = [ImageHelper.load_image("sprites/JumpEl.xcf")]
+        self.anim_up_left = [ImageHelper.load_image("sprites/JumpEl.xcf")]
+        self.anim_down = [ImageHelper.load_image("sprites/Fall.xcf")]
+        self.idle = [ImageHelper.load_image('sprites/Idle.xcf')]
         self.current_anim = self.idle
         self.image = ImageHelper.load_image(texturePath)
         self.rect = self.image.get_rect()
@@ -139,6 +139,7 @@ class RockWalkAndJump:
         self.player = Player(self.screen, "sprites/adventurer_walk1.png")
         self.player.rect.center = self.screen.get_rect().center
         pygame.display.set_caption("Rock walk")
+        self.bg_color = (76, 138, 78)
 
     def run_game(self):
         while True:
@@ -146,6 +147,8 @@ class RockWalkAndJump:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+
+
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -160,6 +163,8 @@ class RockWalkAndJump:
                         self.player.direction_x = Player.NOT_MOVE
                     elif event.key == pygame.K_SPACE:
                         pass
+            self.screen.fill(self.bg_color)
+
             self.player.blit()
             self.player.update()
 
