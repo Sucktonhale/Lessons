@@ -15,6 +15,27 @@ class PlayerState:
     MovingUp = 3
     MovingDown = 4
 
+class Blocks(Sprite):
+    def __init__(self, screen, texturePath):
+        super().__init__()
+        self.image = ImageHelper.load_image(texturePath)
+        self.rect = self.image.get_rect()
+        self.screen = screen
+
+    def update(self, *args, **kwargs):
+        pass
+
+    def blit(self):
+        self.screen.blit(self.image, self.rect)
+
+    def set_coords(self, x, y):
+        self.rect.x = x
+        self.rect.y = y
+
+    def change_coords(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
+
 class Player(Sprite):
     NOT_MOVE = 0
     LEFT_MOVE, UP_MOVE = -1, -1
@@ -45,7 +66,7 @@ class Player(Sprite):
 
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
-        self.frame_rate = 50
+        self.frame_rate = 150
 
     def drop_anim(self, playerState):
         current_anim = self.idle
@@ -72,6 +93,13 @@ class Player(Sprite):
         self.screen.blit(self.image, self.rect)
 
     def update(self, *args, **kwargs):
+        physicEngine = kwargs.get("physicEngine", None)
+
+        if physicEngine is not None:
+            phData = physicEngine.get(self, "test")
+            #print(phData)
+
+
         now = pygame.time.get_ticks()
 
         if now - self.last_update > self.frame_rate:
@@ -131,6 +159,31 @@ class Player(Sprite):
         self.startJumpingTime = pygame.time.get_ticks()
         self.direction_y = Player.UP_MOVE
 
+
+class PhysicalEnvEngine:
+    def __init__(self, **kwargs):   # **kwargs - здесь будет выглядеть как словарь, а где будут передавать будет выглядеть как список параметров
+        self.solidObjects = kwargs.get("solidObjects", list())  # получаем значение, которое лежит в ключе solidObjects, но если не передавали, то пустой список будет - значение по умолчанию
+
+    def update(self):
+        result = {}
+
+        for obj in self.solidObjects:
+            collided = self.check_collision(obj)
+
+            if collided:
+                result[obj] = {"collided": True}
+                print("COLLIDED!")
+
+        return result
+
+    def check_collision(self, item):
+        for obj in self.solidObjects:
+            if obj is not item:
+                if item.rect.colliderect(obj):
+                    return True
+        return False
+
+
 class RockWalkAndJump:
     def __init__(self):
         pygame.init()
@@ -138,6 +191,12 @@ class RockWalkAndJump:
         self.screen = pygame.display.set_mode((1200,800))
         self.player = Player(self.screen, "sprites/adventurer_walk1.png")
         self.player.rect.center = self.screen.get_rect().center
+
+        self.block = Blocks(self.screen, texturePath="sprites/Block1.xcf")
+        self.block.set_coords(self.player.rect.x + 50, self.player.rect.bottom + 25)
+
+        self.physicalEnv = PhysicalEnvEngine(solidObjects=[self.block, self.player])
+
         pygame.display.set_caption("Rock walk")
         self.bg_color = (76, 138, 78)
 
@@ -165,8 +224,15 @@ class RockWalkAndJump:
                         pass
             self.screen.fill(self.bg_color)
 
+            physicalResult = self.physicalEnv.update()
+
             self.player.blit()
-            self.player.update()
+            self.player.update(physicEngine = physicalResult)
+
+
+
+            self.block.blit()
+            self.block.update(physicEngine = physicalResult)
 
             pygame.display.flip()
 
