@@ -1,4 +1,6 @@
 import sys
+from gc import collect
+
 import pygame
 from pygame.sprite import Sprite
 
@@ -32,16 +34,14 @@ class Blocks(Sprite):
         self.rect.x = x
         self.rect.y = y
 
-    def change_coords(self, dx, dy):
-        self.rect.x += dx
-        self.rect.y += dy
+
 
 class Player(Sprite):
     NOT_MOVE = 0
     LEFT_MOVE, UP_MOVE = -1, -1
     RIGHT_MOVE, DOWN_MOVE = 1, 1
 
-    def __init__(self, screen, texturePath):
+    def __init__(self, screen):
         super().__init__()
         self.anim_right = [ImageHelper.load_image("sprites/riht_walk1.xcf"),ImageHelper.load_image('sprites/right_walk2.xcf')]
         self.anim_left = [ImageHelper.load_image("sprites/left_walk1.xcf"),ImageHelper.load_image('sprites/left_walk2.xcf')]
@@ -50,7 +50,7 @@ class Player(Sprite):
         self.anim_down = [ImageHelper.load_image("sprites/Fall.xcf")]
         self.idle = [ImageHelper.load_image('sprites/Idle.xcf')]
         self.current_anim = self.idle
-        self.image = ImageHelper.load_image(texturePath)
+        self.image = self.idle[0]
         self.rect = self.image.get_rect()
         self.screen = screen
         self.speed = 1
@@ -61,12 +61,16 @@ class Player(Sprite):
 
         # self.timer = Timer(0.2)
         self.isJumping = False
-        self.startJumpingTime = pygame.time.get_ticks()
-        self.jumpSpeed = 200
+        self.jumpIterations = 75
+        self.currentJumpIteration = 0
 
         self.frame = 0
         self.last_update = pygame.time.get_ticks()
         self.frame_rate = 150
+
+    def change_coords(self, dx, dy):
+        self.rect.x += dx
+        self.rect.y += dy
 
     def drop_anim(self, playerState):
         current_anim = self.idle
@@ -93,13 +97,6 @@ class Player(Sprite):
         self.screen.blit(self.image, self.rect)
 
     def update(self, *args, **kwargs):
-        physicEngine = kwargs.get("physicEngine", None)
-
-        if physicEngine is not None:
-            phData = physicEngine.get(self, "test")
-            #print(phData)
-
-
         now = pygame.time.get_ticks()
 
         if now - self.last_update > self.frame_rate:
@@ -112,10 +109,15 @@ class Player(Sprite):
         self.image = self.current_anim[self.frame]
 
         if self.isJumping:
-            if now - self.startJumpingTime > self.jumpSpeed:
-                if self.direction_y == Player.UP_MOVE:
+            if self.direction_y == Player.UP_MOVE:
+                if self.currentJumpIteration < self.jumpIterations:
+                    self.currentJumpIteration += 1
+                else:
                     self.start_jumping_falling()
-                elif self.direction_y == Player.DOWN_MOVE:
+            elif self.direction_y == Player.DOWN_MOVE:
+                self.currentJumpIteration -= 1
+
+                if self.currentJumpIteration == 0:
                     self.direction_y = self.NOT_MOVE
                     self.isJumping = False
 
@@ -146,7 +148,6 @@ class Player(Sprite):
         self.drop_anim(PlayerState.MovingDown)
 
     def start_jumping_falling(self):
-        self.startJumpingTime = pygame.time.get_ticks()
         self.start_falling()
 
     def start_jump(self):
@@ -156,7 +157,7 @@ class Player(Sprite):
         self.drop_anim(PlayerState.MovingUp)
 
         self.isJumping = True
-        self.startJumpingTime = pygame.time.get_ticks()
+        self.currentJumpIteration = 0
         self.direction_y = Player.UP_MOVE
 
 
@@ -172,14 +173,13 @@ class PhysicalEnvEngine:
 
             if collided:
                 result[obj] = {"collided": True}
-                print("COLLIDED!")
 
         return result
 
     def check_collision(self, item):
         for obj in self.solidObjects:
             if obj is not item:
-                if item.rect.colliderect(obj):
+                if item.rect.colliderect(obj.rect):
                     return True
         return False
 
@@ -189,16 +189,57 @@ class RockWalkAndJump:
         pygame.init()
 
         self.screen = pygame.display.set_mode((1200,800))
-        self.player = Player(self.screen, "sprites/adventurer_walk1.png")
+        self.player = Player(self.screen)
         self.player.rect.center = self.screen.get_rect().center
 
+
         self.block = Blocks(self.screen, texturePath="sprites/Block1.xcf")
-        self.block.set_coords(self.player.rect.x + 50, self.player.rect.bottom + 25)
+        self.block.set_coords(self.player.rect.x + 50, self.player.rect.bottom - 50)
+
+        self.player.rect.x += 100
 
         self.physicalEnv = PhysicalEnvEngine(solidObjects=[self.block, self.player])
 
         pygame.display.set_caption("Rock walk")
         self.bg_color = (76, 138, 78)
+
+    def check_physic_collision(self, obj):
+        physicalResult = self.physicalEnv.update()
+
+        playerCollided = physicalResult.get(obj, None)
+
+        collided = False
+        if playerCollided is not None and isinstance(playerCollided, dict):
+            collided = playerCollided.get("collided", False)
+
+        return collided
+
+    def process_physicalEnv(self):
+        old_player_x = self.player.rect.x
+        old_player_y = self.player.rect.y
+
+        self.player.update()
+        self.block.update()
+
+        if self.check_physic_collision(self.player):
+            dx = old_player_x - self.player.rect.x
+            dy = old_player_y - self.player.rect.y
+
+            self.player.change_coords(dx, 0)
+
+            if not self.check_physic_collision(self.player):
+                self.player.change_coords(-dx, 0)
+
+            self.player.change_coords(0, dy)
+
+            if not self.check_physic_collision(self.player):
+                self.player.change_coords(0, -dy)
+
+
+
+
+
+
 
     def run_game(self):
         while True:
@@ -206,8 +247,6 @@ class RockWalkAndJump:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-
-
 
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
@@ -224,15 +263,10 @@ class RockWalkAndJump:
                         pass
             self.screen.fill(self.bg_color)
 
-            physicalResult = self.physicalEnv.update()
+            self.process_physicalEnv()
 
             self.player.blit()
-            self.player.update(physicEngine = physicalResult)
-
-
-
             self.block.blit()
-            self.block.update(physicEngine = physicalResult)
 
             pygame.display.flip()
 
