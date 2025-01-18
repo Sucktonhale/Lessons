@@ -43,8 +43,8 @@ class Player(Sprite):
 
     def __init__(self, screen):
         super().__init__()
-        self.anim_right = [ImageHelper.load_image("sprites/riht_walk1.xcf"),ImageHelper.load_image('sprites/right_walk2.xcf')]
-        self.anim_left = [ImageHelper.load_image("sprites/left_walk1.xcf"),ImageHelper.load_image('sprites/left_walk2.xcf')]
+        self.anim_right = [ImageHelper.load_image("sprites/riht_walk1.xcf"),ImageHelper.load_image('sprites/right_walk2.xcf'),ImageHelper.load_image('sprites/right3.xcf')]
+        self.anim_left = [ImageHelper.load_image("sprites/left_walk1.xcf"),ImageHelper.load_image('sprites/left_walk2.xcf'),ImageHelper.load_image('sprites/Left_walk3.xcf')]
         self.anim_up_right = [ImageHelper.load_image("sprites/JumpEl.xcf")]
         self.anim_up_left = [ImageHelper.load_image("sprites/JumpEl.xcf")]
         self.anim_down = [ImageHelper.load_image("sprites/Fall.xcf")]
